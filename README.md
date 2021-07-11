@@ -1,4 +1,4 @@
-# ***Grapevine wood microbiome analysis reveals cultivar-dependent patterns and major microbial players associated with grapevine trunk diseases***
+# ***Grapevine wood microbiome analysis identifies key fungal pathogens and potential interactions with the bacterial community implicated in grapevine trunk dise ase appearance***
 ### By Bekris F. <sup>1</sup>, Vasileiadis S. <sup>1</sup>, Papadopoulou E. <sup>1</sup>, Samaras A. <sup>2</sup>, Testempasis S. <sup>2</sup>, Gkizi D. <sup>3</sup>, Tavlaki, G. <sup>4</sup>, Tzima A. <sup>3</sup>, Paplomatas E. <sup>3</sup>, Markakis E. <sup>4</sup>, Karaoglanidis G. <sup>2</sup>, Papadopoulou K.K. <sup>1</sup>, Karpouzas D.G. <sup>1*</sup>
 
 ### (\* corr. author)
@@ -26,23 +26,26 @@ In the case of the computational methods, with the "Grapevine_wood_microbiome-" 
 
 ## Description of the order of executed scripts.
 
-Steps 1-6 are described for Fungi but need to be performed for Bacteria as well. 
+Steps 1-3 concern the data retrieval from NCBI and preprocessing, while steps 4-6 concern the actual data analysis for total fungi and bacteria. 
 
 1) First, it is necessary to download the sequencing data.
 To do so, you need to enter the "0.DownloadData" subfolder of e.g. the "Fungi" and execute the "fetch_data.sh" bash script (this assumes that you are located at the working directory "Grapevine_wood_microbiome-").
 The script is based on the SRR accession numbers found in the 0.DownloadData folder.
 Once the download is done, you need to combine all forward reads to a single file and all reverse reads to another file as well.
 ```
-cd Fungi/0.DownloadData
-sh -x fetch_data.sh
-cat *_1.fastq | gzip > forward.fastq.gz
-cat *_2.fastq | gzip > reverse.fastq.gz
-cd ../../
-cd Bacteria/0.DownloadData
-sh -x fetch_data.sh
-cat *_1.fastq | gzip > forward.fastq.gz
-cat *_2.fastq | gzip > reverse.fastq.gz
-cd ../../
+for i in {1..3}
+do
+	cd Fungi/0.DownloadData/batch${i}
+	sh -x fetch_data.sh
+	cat *_1.fastq | gzip > forward.fastq.gz
+	cat *_2.fastq | gzip > reverse.fastq.gz
+	cd ../../../
+	cd Bacteria/0.DownloadData/batch${i}
+	sh -x fetch_data.sh
+	cat *_1.fastq | gzip > forward.fastq.gz
+	cat *_2.fastq | gzip > reverse.fastq.gz
+	cd ../../../
+done
 ```
 
 2) Then you need to demultiplex the data according to our own demultiplexing method using our in-house script.
@@ -52,37 +55,50 @@ You need to enter the folder Fungi/1.Demultiplex and run the following commands 
 the following commands are going to save the demultiplexed files in the Fungi(or Bacteria)/1.Demultiplex/demux_out folder.
 ```
 MY_WORKING_DIR_BASE=`pwd`
+for i in {1..3}
+do
+  cd Fungi/1.Demultiplex
+  MY_PROCS=56
+  bash DemuxOwnBCsys_absPATH.sh demux_out${i} ${MY_WORKING_DIR_BASE}/Fungi/0.DownloadData/batch${i}/forward.fastq.gz ${MY_WORKING_DIR_BASE}/Fungi/0.DownloadData/batch${i}/reverse.fastq.gz fun${i}_map_file.txt ${MY_PROCS}
+  cd demux_out${i}/analysis_ready
+  gunzip *.gz # unzips files skipped by the Demux script
+  cd ../../../../
+  cd Bacteria/1.Demultiplex
+  MY_PROCS=56
+  bash DemuxOwnBCsys_absPATH.sh demux_ou${i} ${MY_WORKING_DIR_BASE}/Fungi/0.DownloadData/batch${i}/forward.fastq.gz ${MY_WORKING_DIR_BASE}/Fungi/0.DownloadData/batch${i}/reverse.fastq.gz bac${i}_map_file.txt ${MY_PROCS}
+  cd demux_out${i}/analysis_ready
+  gunzip *.gz # unzips files skipped by the Demux script
+  cd ../../../../
+done
+
 cd Fungi/1.Demultiplex
-MY_PROCS=56
-bash DemuxOwnBCsys_absPATH.sh demux_out ${MY_WORKING_DIR_BASE}/Fungi/0.DownloadData/forward.fastq.gz ${MY_WORKING_DIR_BASE}/Fungi/0.DownloadData/reverse.fastq.gz map_file.txt ${MY_PROCS}
-cd demux_out/analysis_ready
-gunzip *.gz # unzips files skipped by the Demux script
-cd ../../../../
+mkdir -p demux_out/analysis_ready
+cp demux_out[0-9]/analysis_ready/*.fastq demux_out/analysis_ready/
+cd ../../
+
 cd Bacteria/1.Demultiplex
-MY_PROCS=56
-bash DemuxOwnBCsys_absPATH.sh demux_out ${MY_WORKING_DIR_BASE}/Fungi/0.DownloadData/forward.fastq.gz ${MY_WORKING_DIR_BASE}/Fungi/0.DownloadData/reverse.fastq.gz map_file.txt ${MY_PROCS}
-cd demux_out/analysis_ready
-gunzip *.gz # unzips files skipped by the Demux script
-cd ../../../../
+mkdir -p demux_out/analysis_ready
+cp demux_out[0-9]/analysis_ready/*.fastq demux_out/analysis_ready/
+cd ../../
 ```
-3a) Following, the "phyloseqPrep.r" script of the Fungi(or Bacteria)/2.PhyloseqObjectPerp folder is run in order to prepare the final phyloseq object to be used in the data analysis described below. Before runnin gthe script make sure that the necessary reference databases are found in the same folder.
+3) Following, the "phyloseqPrep.r" script of the Fungi(or Bacteria)/2.PhyloseqObjectPerp folder is run in order to prepare the final phyloseq object to be used in the data analysis described below. Before runnin gthe script make sure that the necessary reference databases are found in the same folder.
 ```
 cd Fungi/2.PhyloseqObjectPrep
 # fetch the databases
-wget https://zenodo.org/record/4587955/files/silva_nr99_v138.1_train_set.fa.gz
-wget https://zenodo.org/record/4587955/files/silva_nr99_v138.1_wSpecies_train_set.fa.gz
+wget https://files.plutof.ut.ee/public/orig/1D/B9/1DB95C8AC0A80108BECAF1162D761A8D379AF43E2A4295A3EF353DD1632B645B.gz
 # run the R script
 Rscript phyloseqPrep.r
 cd ../../
 cd Bacteria/2.PhyloseqObjectPrep
 # fetch the databases
-wget https://files.plutof.ut.ee/public/orig/1D/B9/1DB95C8AC0A80108BECAF1162D761A8D379AF43E2A4295A3EF353DD1632B645B.gz
+wget https://zenodo.org/record/4587955/files/silva_nr99_v138.1_train_set.fa.gz
+wget https://zenodo.org/record/4587955/files/silva_nr99_v138.1_wSpecies_train_set.fa.gz
 tar vxf *.gz
 # run the R script
 Rscript phyloseqPrep.r
 cd ../../
 ```
-3b) Run the NMDS and PERMANOVA tests.
+4a) Run the NMDS and PERMANOVA tests.
 ```
 cd Fungi/3.DataAnalysis
 Rscript NMDS_PERMANOVA.R
@@ -92,9 +108,9 @@ Rscript NMDS_PERMANOVA.R
 cd ../../
 ```
 
-4) Pathogenic fungi, linked to the grapevine trunk decline (GTD) complex, were selected as described in the manuscript.
+5) Pathogenic fungi, linked to the grapevine trunk decline (GTD) complex, were selected as described in the manuscript.
 
-5) Network analysis was performed no attempt and identify links among the GTD complex members and between the complex and the rest fungi and total bacteria. run the following
+6) Network analysis was performed no attempt and identify links among the GTD complex members and between the complex and the rest fungi and total bacteria. run the following
 
 ```
 cd NetWork
