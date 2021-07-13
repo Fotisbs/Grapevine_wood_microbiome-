@@ -116,7 +116,7 @@ cd Bacteria/3.DataAnalysis/NMDS_PERMANOVA_PAIRWISE
 Rscript NMDS_PERMANOVA.R
 cd ../../../
 ```
-4c) Run the NMDS and PERMANOVA tests.
+4c) Prepare the barplots.
 ```
 cd Fungi/3.DataAnalysis/BarPlots
 Rscript BarPlots.R
