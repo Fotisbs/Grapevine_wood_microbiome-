@@ -98,14 +98,32 @@ tar vxf *.gz
 Rscript phyloseqPrep.r
 cd ../../
 ```
-4a) Run the NMDS and PERMANOVA tests.
+4a) Run the overall PERMANOVA tests.
 ```
-cd Fungi/3.DataAnalysis
+cd Fungi/3.DataAnalysis/PERMANOVA
+Rscript PERMANOVA.R
+cd ../../../
+cd Bacteria/3.DataAnalysis/PERMANOVA
+Rscript PERMANOVA.R
+cd ../../../
+```
+4b) Run the NMDS and PERMANOVA tests.
+```
+cd Fungi/3.DataAnalysis/NMDS_PERMANOVA_PAIRWISE
 Rscript NMDS_PERMANOVA.R
-cd ../../
-cd Bacteria/3.DataAnalysis
+cd ../../../
+cd Bacteria/3.DataAnalysis/NMDS_PERMANOVA_PAIRWISE
 Rscript NMDS_PERMANOVA.R
-cd ../../
+cd ../../../
+```
+4c) Run the NMDS and PERMANOVA tests.
+```
+cd Fungi/3.DataAnalysis/BarPlots
+Rscript BarPlots.R
+cd ../../../
+cd Bacteria/3.DataAnalysis/BarPlots
+Rscript BarPlots.R
+cd ../../../
 ```
 
 5) Pathogenic fungi, linked to the grapevine trunk decline (GTD) complex, were selected as described in the manuscript.
