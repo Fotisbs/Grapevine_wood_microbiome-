@@ -125,6 +125,15 @@ cd Bacteria/3.DataAnalysis/BarPlots
 Rscript BarPlots.R
 cd ../../../
 ```
+4d) Prepare the differential abundance (DA) heatmaps.
+```
+cd Fungi/3.DataAnalysis/DA
+Rscript DA.R
+cd ../../../
+cd Bacteria/3.DataAnalysis/DA
+Rscript DA.R
+cd ../../../
+```
 
 5) Pathogenic fungi, linked to the grapevine trunk decline (GTD) complex, were selected as described in the manuscript.
 
