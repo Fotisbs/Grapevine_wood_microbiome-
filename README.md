@@ -134,6 +134,12 @@ cd Bacteria/3.DataAnalysis/DA
 Rscript DA.R
 cd ../../../
 ```
+4e) Run the random forests analysis.
+```
+cd Fungi/3.DataAnalysis/RandomForests
+Rscript RandomForests.R
+cd ../../../
+```
 
 5) Pathogenic fungi, linked to the grapevine trunk decline (GTD) complex, were selected as described in the manuscript.
 
