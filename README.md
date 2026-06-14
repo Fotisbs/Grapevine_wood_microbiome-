@@ -54,32 +54,7 @@ A detailed description of our in-house multiplexing approach is provided in our 
 You need to enter the folder Fungi/1.Demultiplex and run the following commands (change the MY_PROCS variable to whatever number of logical processors you have available and want to devote).
 the following commands are going to save the demultiplexed files in the Fungi(or Bacteria)/1.Demultiplex/demux_out folder.
 ```
-MY_WORKING_DIR_BASE=`pwd`
-for i in {1..3}
-do
-  cd Fungi/1.Demultiplex
-  MY_PROCS=56
-  bash DemuxOwnBCsys_absPATH.sh demux_out${i} ${MY_WORKING_DIR_BASE}/Fungi/0.DownloadData/batch${i}/forward.fastq.gz ${MY_WORKING_DIR_BASE}/Fungi/0.DownloadData/batch${i}/reverse.fastq.gz fun${i}_map_file.txt ${MY_PROCS}
-  cd demux_out${i}/analysis_ready
-  gunzip *.gz # unzips files skipped by the Demux script
-  cd ../../../../
-  cd Bacteria/1.Demultiplex
-  MY_PROCS=56
-  bash DemuxOwnBCsys_absPATH.sh demux_ou${i} ${MY_WORKING_DIR_BASE}/Fungi/0.DownloadData/batch${i}/forward.fastq.gz ${MY_WORKING_DIR_BASE}/Fungi/0.DownloadData/batch${i}/reverse.fastq.gz bac${i}_map_file.txt ${MY_PROCS}
-  cd demux_out${i}/analysis_ready
-  gunzip *.gz # unzips files skipped by the Demux script
-  cd ../../../../
-done
-
-cd Fungi/1.Demultiplex
-mkdir -p demux_out/analysis_ready
-cp demux_out[0-9]/analysis_ready/*.fastq demux_out/analysis_ready/
-cd ../../
-
-cd Bacteria/1.Demultiplex
-mkdir -p demux_out/analysis_ready
-cp demux_out[0-9]/analysis_ready/*.fastq demux_out/analysis_ready/
-cd ../../
+The detailed steps can be found at (https://github.com/SotiriosVasileiadis/mconsort_tbz_degr#16s)
 ```
 3) Following, the "phyloseqPrep.r" script of the Fungi(or Bacteria)/2.PhyloseqObjectPerp folder is run in order to prepare the final phyloseq object to be used in the data analysis described below. Before runnin gthe script make sure that the necessary reference databases are found in the same folder.
 ```
